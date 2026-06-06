@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { Users, Plus, Search, Filter, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,12 +10,17 @@ import { Button, Input, Card } from "@/components/ui/primitives";
 import { VendorTable } from "./vendor-table";
 import { VendorForm } from "./vendor-form";
 import { useAuth } from "@/features/auth/auth-context";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
-export default function VendorsPage() {
+function VendorsContent() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const q = searchParams.get("q") || "";
+
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Vendor | null>(null);
 
@@ -36,10 +41,17 @@ export default function VendorsPage() {
   useEffect(() => { fetchVendors(); }, []);
 
   const filtered = vendors.filter(v => 
-    v.vendor_name.toLowerCase().includes(query.toLowerCase()) ||
-    v.email.toLowerCase().includes(query.toLowerCase()) ||
-    v.category.toLowerCase().includes(query.toLowerCase())
+    v.vendor_name.toLowerCase().includes(q.toLowerCase()) ||
+    v.email.toLowerCase().includes(q.toLowerCase()) ||
+    v.category.toLowerCase().includes(q.toLowerCase())
   );
+
+  const updateSearch = (val: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (val) params.set("q", val);
+    else params.delete("q");
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   const handleSubmit = async (values: any) => {
     try {
@@ -86,7 +98,12 @@ export default function VendorsPage() {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search by name, email or category..." value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Input 
+            className="pl-9" 
+            placeholder="Search by name, email or category..." 
+            value={q} 
+            onChange={(e) => updateSearch(e.target.value)} 
+          />
         </div>
         <Button variant="outline" size="icon" onClick={fetchVendors} disabled={loading}>
           <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
@@ -130,7 +147,14 @@ export default function VendorsPage() {
   );
 }
 
-// Add cn helper if not imported or available
+export default function VendorsPage() {
+  return (
+    <Suspense fallback={<div className="py-20 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <VendorsContent />
+    </Suspense>
+  );
+}
+
 function cn(...inputs: any[]) {
   return inputs.filter(Boolean).join(" ");
 }

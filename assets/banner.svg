@@ -1,0 +1,180 @@
+<svg viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg" width="900" height="280">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#040810"/>
+      <stop offset="100%" style="stop-color:#080f1e"/>
+    </linearGradient>
+
+    <!-- Title gradient -->
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="40%" style="stop-color:#93c5fd"/>
+      <stop offset="80%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#67e8f9"/>
+    </linearGradient>
+
+    <!-- Glow filters -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="subtleGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <!-- Grid pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(59,130,246,0.06)" stroke-width="1"/>
+    </pattern>
+
+    <!-- Clip for whole SVG -->
+    <clipPath id="svgClip">
+      <rect width="900" height="280" rx="16"/>
+    </clipPath>
+
+    <!-- Radial glow -->
+    <radialGradient id="centerGlow" cx="35%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:rgba(59,130,246,0.15)"/>
+      <stop offset="100%" style="stop-color:rgba(0,0,0,0)"/>
+    </radialGradient>
+    <radialGradient id="rightGlow" cx="90%" cy="30%" r="40%">
+      <stop offset="0%" style="stop-color:rgba(139,92,246,0.12)"/>
+      <stop offset="100%" style="stop-color:rgba(0,0,0,0)"/>
+    </radialGradient>
+
+    <!-- Animated pulse -->
+    <style>
+      .pulse { animation: pulse 3s ease-in-out infinite; }
+      @keyframes pulse {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+      }
+      .float { animation: float 6s ease-in-out infinite; }
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-6px); }
+      }
+      .orbit { animation: orbit 12s linear infinite; transform-origin: 680px 100px; }
+      @keyframes orbit {
+        from { transform: rotate(0deg) translateX(60px); }
+        to { transform: rotate(360deg) translateX(60px); }
+      }
+      .orbit2 { animation: orbit2 18s linear infinite reverse; transform-origin: 700px 180px; }
+      @keyframes orbit2 {
+        from { transform: rotate(0deg) translateX(90px); }
+        to { transform: rotate(360deg) translateX(90px); }
+      }
+    </style>
+  </defs>
+
+  <g clip-path="url(#svgClip)">
+    <!-- Background -->
+    <rect width="900" height="280" fill="url(#bgGrad)"/>
+    <rect width="900" height="280" fill="url(#grid)"/>
+
+    <!-- Ambient glows -->
+    <rect width="900" height="280" fill="url(#centerGlow)"/>
+    <rect width="900" height="280" fill="url(#rightGlow)"/>
+
+    <!-- Decorative orb top-left -->
+    <circle cx="60" cy="60" r="120" fill="rgba(59,130,246,0.05)" filter="url(#softGlow)"/>
+
+    <!-- Right side abstract circuit / procurement diagram -->
+    <!-- Central node -->
+    <circle cx="680" cy="140" r="40" fill="none" stroke="rgba(59,130,246,0.15)" stroke-width="1"/>
+    <circle cx="680" cy="140" r="28" fill="rgba(59,130,246,0.06)" stroke="rgba(59,130,246,0.25)" stroke-width="1"/>
+    <circle cx="680" cy="140" r="8" fill="#3b82f6" opacity="0.8" filter="url(#subtleGlow)"/>
+
+    <!-- Spoke lines -->
+    <line x1="680" y1="140" x2="760" y2="80"  stroke="rgba(59,130,246,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="680" y1="140" x2="760" y2="200" stroke="rgba(139,92,246,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="680" y1="140" x2="600" y2="80"  stroke="rgba(6,182,212,0.2)"  stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="680" y1="140" x2="600" y2="200" stroke="rgba(59,130,246,0.15)" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="680" y1="140" x2="820" y2="140" stroke="rgba(139,92,246,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+    <line x1="680" y1="140" x2="680" y2="50"  stroke="rgba(6,182,212,0.2)"  stroke-width="1" stroke-dasharray="4,3"/>
+
+    <!-- Spoke nodes -->
+    <circle cx="760" cy="80"  r="7" fill="rgba(6,182,212,0.15)"  stroke="rgba(6,182,212,0.5)"  stroke-width="1"/>
+    <circle cx="760" cy="200" r="7" fill="rgba(139,92,246,0.15)" stroke="rgba(139,92,246,0.5)" stroke-width="1"/>
+    <circle cx="600" cy="80"  r="7" fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.5)" stroke-width="1"/>
+    <circle cx="600" cy="200" r="7" fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.5)" stroke-width="1"/>
+    <circle cx="820" cy="140" r="7" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.5)" stroke-width="1"/>
+    <circle cx="680" cy="50"  r="7" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.5)" stroke-width="1"/>
+
+    <!-- Outer ring -->
+    <circle cx="680" cy="140" r="70" fill="none" stroke="rgba(59,130,246,0.08)" stroke-width="1" stroke-dasharray="6,4"/>
+
+    <!-- Orbiting dot -->
+    <circle class="orbit" cx="680" cy="140" r="4" fill="#67e8f9" opacity="0.7"/>
+    <circle class="orbit2" cx="700" cy="180" r="3" fill="#a78bfa" opacity="0.6"/>
+
+    <!-- Far right decorative lines -->
+    <line x1="840" y1="40"  x2="900" y2="40"  stroke="rgba(59,130,246,0.1)" stroke-width="1"/>
+    <line x1="850" y1="55"  x2="900" y2="55"  stroke="rgba(59,130,246,0.07)" stroke-width="1"/>
+    <line x1="840" y1="230" x2="900" y2="230" stroke="rgba(139,92,246,0.1)" stroke-width="1"/>
+    <line x1="860" y1="245" x2="900" y2="245" stroke="rgba(139,92,246,0.07)" stroke-width="1"/>
+
+    <!-- Left content area -->
+    <!-- Eyebrow tag -->
+    <rect x="48" y="44" width="192" height="22" rx="11" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+    <text x="144" y="59" font-family="monospace" font-size="10" fill="#93c5fd" text-anchor="middle" letter-spacing="2">PROCUREMENT PLATFORM</text>
+
+    <!-- Main title -->
+    <text x="48" y="122" font-family="Georgia, serif" font-size="62" font-weight="900" fill="url(#titleGrad)" filter="url(#glow)" letter-spacing="-1">VendorBridge</text>
+
+    <!-- Tagline -->
+    <text x="50" y="152" font-family="Georgia, serif" font-style="italic" font-size="16" fill="rgba(226,232,240,0.6)">Smart Procurement &amp; Vendor Management</text>
+
+    <!-- Divider line -->
+    <line x1="48" y1="170" x2="260" y2="170" stroke="rgba(59,130,246,0.25)" stroke-width="1"/>
+
+    <!-- Tech pills row -->
+    <!-- Next.js -->
+    <rect x="48"  y="182" width="68" height="20" rx="10" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+    <text x="82"  y="196" font-family="monospace" font-size="9" fill="#e2e8f0" text-anchor="middle">Next.js 15</text>
+    <!-- TypeScript -->
+    <rect x="122" y="182" width="72" height="20" rx="10" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.25)" stroke-width="1"/>
+    <text x="158" y="196" font-family="monospace" font-size="9" fill="#93c5fd" text-anchor="middle">TypeScript</text>
+    <!-- Django -->
+    <rect x="200" y="182" width="60" height="20" rx="10" fill="rgba(139,92,246,0.08)" stroke="rgba(139,92,246,0.25)" stroke-width="1"/>
+    <text x="230" y="196" font-family="monospace" font-size="9" fill="#c4b5fd" text-anchor="middle">Django 5</text>
+    <!-- JWT -->
+    <rect x="266" y="182" width="42" height="20" rx="10" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.25)" stroke-width="1"/>
+    <text x="287" y="196" font-family="monospace" font-size="9" fill="#6ee7b7" text-anchor="middle">JWT</text>
+
+    <!-- Stats row -->
+    <text x="50"  y="234" font-family="monospace" font-size="11" fill="rgba(148,163,184,0.5)">9 stages</text>
+    <text x="50"  y="234" font-family="monospace" font-size="11" fill="rgba(59,130,246,0.4)">        ·</text>
+    <text x="116" y="234" font-family="monospace" font-size="11" fill="rgba(148,163,184,0.5)">6 modules</text>
+    <text x="116" y="234" font-family="monospace" font-size="11" fill="rgba(139,92,246,0.4)">          ·</text>
+    <text x="188" y="234" font-family="monospace" font-size="11" fill="rgba(148,163,184,0.5)">Full-stack</text>
+
+    <!-- Bottom left subtle text -->
+    <text x="50" y="258" font-family="monospace" font-size="9" fill="rgba(100,116,139,0.5)" letter-spacing="1">BUILT AT HACKATHON · SHAIV PATEL</text>
+
+    <!-- Decorative corner accent top-right of left area -->
+    <line x1="530" y1="20" x2="560" y2="20" stroke="rgba(59,130,246,0.15)" stroke-width="1"/>
+    <line x1="560" y1="20" x2="560" y2="50" stroke="rgba(59,130,246,0.15)" stroke-width="1"/>
+    <line x1="530" y1="260" x2="560" y2="260" stroke="rgba(139,92,246,0.15)" stroke-width="1"/>
+    <line x1="560" y1="260" x2="560" y2="230" stroke="rgba(139,92,246,0.15)" stroke-width="1"/>
+
+    <!-- Corner accents main -->
+    <line x1="20" y1="20" x2="50" y2="20" stroke="rgba(59,130,246,0.3)" stroke-width="1.5"/>
+    <line x1="20" y1="20" x2="20" y2="50" stroke="rgba(59,130,246,0.3)" stroke-width="1.5"/>
+    <line x1="880" y1="20" x2="850" y2="20" stroke="rgba(139,92,246,0.3)" stroke-width="1.5"/>
+    <line x1="880" y1="20" x2="880" y2="50" stroke="rgba(139,92,246,0.3)" stroke-width="1.5"/>
+    <line x1="20" y1="260" x2="50" y2="260" stroke="rgba(6,182,212,0.3)" stroke-width="1.5"/>
+    <line x1="20" y1="260" x2="20" y2="230" stroke="rgba(6,182,212,0.3)" stroke-width="1.5"/>
+    <line x1="880" y1="260" x2="850" y2="260" stroke="rgba(59,130,246,0.3)" stroke-width="1.5"/>
+    <line x1="880" y1="260" x2="880" y2="230" stroke="rgba(59,130,246,0.3)" stroke-width="1.5"/>
+
+    <!-- Border -->
+    <rect x="0.5" y="0.5" width="899" height="279" rx="15.5" fill="none" stroke="rgba(59,130,246,0.15)" stroke-width="1"/>
+  </g>
+</svg>

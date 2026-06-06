@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { FileText, Plus, Search, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,12 +10,17 @@ import { Button, Input, Card } from "@/components/ui/primitives";
 import { RFQTable } from "./rfq-table";
 import { RFQForm } from "./rfq-form";
 import { useAuth } from "@/features/auth/auth-context";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
-export default function RFQsPage() {
+function RFQsContent() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const q = searchParams.get("q") || "";
+
   const [rfqs, setRfqs] = useState<RFQ[]>([]);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<RFQ | null>(null);
 
@@ -36,9 +41,16 @@ export default function RFQsPage() {
   useEffect(() => { fetchRfqs(); }, []);
 
   const filtered = rfqs.filter(r => 
-    r.title.toLowerCase().includes(query.toLowerCase()) ||
-    r.vendor_name?.toLowerCase().includes(query.toLowerCase())
+    r.title.toLowerCase().includes(q.toLowerCase()) ||
+    r.vendor_name?.toLowerCase().includes(q.toLowerCase())
   );
+
+  const updateSearch = (val: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (val) params.set("q", val);
+    else params.delete("q");
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   const handleSubmit = async (values: any) => {
     try {
@@ -85,7 +97,12 @@ export default function RFQsPage() {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search by title or vendor..." value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Input 
+            className="pl-9" 
+            placeholder="Search by title or vendor..." 
+            value={q} 
+            onChange={(e) => updateSearch(e.target.value)} 
+          />
         </div>
         <Button variant="outline" size="icon" onClick={fetchRfqs} disabled={loading}>
           <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
@@ -126,6 +143,14 @@ export default function RFQsPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function RFQsPage() {
+  return (
+    <Suspense fallback={<div className="py-20 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <RFQsContent />
+    </Suspense>
   );
 }
 

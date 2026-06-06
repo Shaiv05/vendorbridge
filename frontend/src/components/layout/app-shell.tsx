@@ -32,14 +32,26 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobile, setMobile] = useState(false);
+  const [search, setSearch] = useState("");
   const pathname = usePathname();
+  const router = useRouter();
+  
   if (!user) return null;
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams(window.location.search);
+    if (search) params.set("q", search);
+    else params.delete("q");
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   const visible = NAV.filter((n) => n.roles === "all" || n.roles.includes(user.role));
   const initials = `${user.first_name[0] ?? ""}${user.last_name[0] ?? ""}`.toUpperCase();
 
   return (
     <div className="min-h-screen flex bg-background">
+      {/* ... (sidebar) */}
       <motion.aside animate={{ width: collapsed ? 72 : 256 }} transition={{ duration: 0.25 }}
         className="hidden lg:flex flex-col bg-sidebar text-sidebar-foreground sticky top-0 h-screen border-r border-sidebar-border">
         <Side collapsed={collapsed} items={visible} pathname={pathname} onToggle={() => setCollapsed((c) => !c)} role={user.role} onLogout={logout} />
@@ -59,10 +71,16 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col min-w-0">
         <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/80 backdrop-blur-xl flex items-center gap-3 px-4 sm:px-6">
           <button onClick={() => setMobile(true)} className="lg:hidden p-2 rounded-md hover:bg-muted"><Menu className="h-5 w-5" /></button>
-          <div className="relative flex-1 max-w-md">
+          <form onSubmit={handleSearch} className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search vendors, RFQs, invoices…" className="pl-9 bg-muted/40 border-transparent" />
-          </div>
+            <Input 
+              placeholder="Search current view..." 
+              className="pl-9 bg-muted/40 border-transparent" 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </form>
+          {/* ... (rest of header) */}
           <div className="ml-auto flex items-center gap-2">
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5" />
