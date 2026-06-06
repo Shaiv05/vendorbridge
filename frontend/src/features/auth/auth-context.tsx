@@ -23,20 +23,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const t = tokenStore.access;
     if (!t) { setLoading(false); return; }
-    api.get<User>("/auth/me")
+    api.get<User>("/auth/me/")
       .then((r) => setUser(r.data))
       .catch(() => tokenStore.clear())
       .finally(() => setLoading(false));
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { data } = await api.post("/auth/login", { email, password });
+    const { data } = await api.post("/auth/login/", { email, password });
     tokenStore.set(data.access, data.refresh);
     setUser(data.user);
   };
 
   const register = async (payload: Parameters<AuthContextValue["register"]>[0]) => {
-    await api.post("/auth/register", payload);
+    await api.post("/auth/register/", payload);
     await login(payload.email, payload.password);
   };
 

@@ -32,7 +32,7 @@ api.interceptors.response.use(
       orig._retry = true;
       try {
         refreshing ??= (async () => {
-          const { data } = await axios.post(`${API_URL}/auth/refresh`, { refresh: tokenStore.refresh });
+          const { data } = await axios.post(`${API_URL}/auth/refresh/`, { refresh: tokenStore.refresh });
           tokenStore.set(data.access, tokenStore.refresh!);
           return data.access as string;
         })();
