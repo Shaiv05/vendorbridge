@@ -48,6 +48,23 @@ class LoginSerializer(TokenObtainPairSerializer):
         return token
 
     def validate(self, attrs):
-        data = super().validate(attrs)
-        data["user"] = UserSerializer(self.user).data
-        return data
+        from django.contrib.auth import authenticate
+        
+        email = attrs.get("email")
+        password = attrs.get("password")
+        
+        if not email or not password:
+            raise serializers.ValidationError("Email and password required")
+        
+        user = authenticate(username=email, password=password)
+        if user is None:
+            raise serializers.ValidationError("Invalid credentials")
+        
+        self.user = user
+        tokens = self.get_token(user)
+        
+        return {
+            "access": str(tokens.access_token),
+            "refresh": str(tokens),
+            "user": UserSerializer(user).data,
+        }

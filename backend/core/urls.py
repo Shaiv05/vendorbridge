@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from .views import (
     VendorViewSet, RFQViewSet, QuotationViewSet, 
-    ApprovalViewSet, PurchaseOrderViewSet, InvoiceViewSet
+    ApprovalViewSet, PurchaseOrderViewSet, InvoiceViewSet, AuditLogViewSet
 )
 
 class HealthView(APIView):
@@ -20,6 +20,7 @@ router.register(r"quotations", QuotationViewSet, basename="quotation")
 router.register(r"approvals", ApprovalViewSet, basename="approval")
 router.register(r"purchase-orders", PurchaseOrderViewSet, basename="purchase-order")
 router.register(r"invoices", InvoiceViewSet, basename="invoice")
+router.register(r"audit-logs", AuditLogViewSet, basename="audit-log")
 
 urlpatterns = [
     path("health/", HealthView.as_view()),

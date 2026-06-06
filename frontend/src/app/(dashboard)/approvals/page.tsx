@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckSquare, Loader2, XCircle, Clock } from "lucide-react";
+import { CheckSquare, CheckCircle2, Loader2, XCircle, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { approvalService, type Approval } from "@/services/approval-service";
 import { Button, Card } from "@/components/ui/primitives";

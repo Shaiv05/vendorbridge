@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Quote, Plus, Search, Loader2, RefreshCw, Send, FileText } from "lucide-react";
+import { Quote, Plus, Search, Loader2, RefreshCw, Send, FileText, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Quotation } from "@/types/quotation";
@@ -62,7 +62,6 @@ export default function QuotationsPage() {
       // For this demo, we'll assume there's a vendor with ID 1.
       await quotationService.create({
         rfq: parseInt(formData.rfq),
-        vendor: 1, 
         price: formData.price,
         delivery_days: parseInt(formData.delivery_days),
         notes: formData.notes,

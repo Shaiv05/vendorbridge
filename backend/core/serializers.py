@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Vendor, RFQ, Quotation, Approval, PurchaseOrder, Invoice
+from .models import Vendor, RFQ, Quotation, Approval, PurchaseOrder, Invoice, AuditLog
 
 class VendorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -43,9 +43,15 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
 
 class InvoiceSerializer(serializers.ModelSerializer):
     po_number = serializers.CharField(source="purchase_order.po_number", read_only=True)
-    vendor_name = serializers.CharField(source="vendor.vendor_name", read_only=True)
+    vendor_name = serializers.CharField(source="purchase_order.vendor.vendor_name", read_only=True)
 
     class Meta:
         model = Invoice
         fields = "__all__"
         read_only_fields = ("id", "created_at", "updated_at")
+
+class AuditLogSerializer(serializers.ModelSerializer):
+    user_email = serializers.CharField(source="user.email", read_only=True)
+    class Meta:
+        model = AuditLog
+        fields = "__all__"

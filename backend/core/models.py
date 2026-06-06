@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+from django.utils import timezone
 
 class Vendor(models.Model):
     class Status(models.TextChoices):
@@ -95,11 +97,11 @@ class PurchaseOrder(models.Model):
 
     po_number = models.CharField(max_length=50, unique=True)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name="purchase_orders")
-    rfq = models.ForeignKey(RFQ, on_delete=models.CASCADE, related_name="purchase_orders")
-    quotation = models.OneToOneField(Quotation, on_delete=models.CASCADE, related_name="purchase_order")
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    issue_date = models.DateField(auto_now_add=True)
-    delivery_date = models.DateField()
+    rfq = models.ForeignKey(RFQ, on_delete=models.CASCADE, related_name="purchase_orders", null=True, blank=True)
+    quotation = models.OneToOneField(Quotation, on_delete=models.CASCADE, related_name="purchase_order", null=True, blank=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    issue_date = models.DateField(default=timezone.now)
+    delivery_date = models.DateField(default=timezone.now)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -119,10 +121,10 @@ class Invoice(models.Model):
         CANCELLED = "CANCELLED", "Cancelled"
 
     invoice_number = models.CharField(max_length=50, unique=True)
-    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="invoices")
-    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name="invoices")
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    due_date = models.DateField()
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="invoices", null=True, blank=True)
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name="invoices", null=True, blank=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    due_date = models.DateField(default=timezone.now)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -133,3 +135,16 @@ class Invoice(models.Model):
 
     def __str__(self):
         return f"Invoice {self.invoice_number}"
+
+class AuditLog(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    action = models.CharField(max_length=255)
+    entity_type = models.CharField(max_length=50)
+    entity_id = models.IntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self):
+        return f"{self.user} - {self.action} on {self.entity_type} {self.entity_id}"

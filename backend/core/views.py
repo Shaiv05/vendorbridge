@@ -5,11 +5,12 @@ from django.http import HttpResponse
 from django.utils import timezone
 from reportlab.pdfgen import canvas
 import io
-from .models import Vendor, RFQ, Quotation, Approval, PurchaseOrder, Invoice
+from .models import Vendor, RFQ, Quotation, Approval, PurchaseOrder, Invoice, AuditLog
 from .serializers import (
     VendorSerializer, RFQSerializer, QuotationSerializer, 
-    ApprovalSerializer, PurchaseOrderSerializer, InvoiceSerializer
+    ApprovalSerializer, PurchaseOrderSerializer, InvoiceSerializer, AuditLogSerializer
 )
+from .email_service import send_procurement_email
 
 class IsProcurementOrAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -33,7 +34,12 @@ class RFQViewSet(viewsets.ModelViewSet):
     serializer_class = RFQSerializer
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        rfq = serializer.save(created_by=self.request.user)
+        send_procurement_email(
+            "New RFQ Invitation",
+            f"You have been invited to bid on: {rfq.title}",
+            [rfq.vendor.email]
+        )
 
     def get_permissions(self):
         if self.action in ["list", "retrieve", "comparison"]:
@@ -67,6 +73,22 @@ class QuotationViewSet(viewsets.ModelViewSet):
         if user.role == "VENDOR":
             return Quotation.objects.filter(vendor__email=user.email)
         return Quotation.objects.all()
+
+    def perform_create(self, serializer):
+        if self.request.user.role == "VENDOR":
+            vendor, _ = Vendor.objects.get_or_create(
+                email=self.request.user.email,
+                defaults={
+                    "vendor_name": self.request.user.full_name or self.request.user.email,
+                    "category": "General",
+                    "gst_number": f"AUTO{int(timezone.now().timestamp() * 1000)}",
+                    "phone": "0000000000",
+                    "address": "Auto-generated vendor profile",
+                },
+            )
+            serializer.save(vendor=vendor)
+        else:
+            serializer.save()
 
     def get_permissions(self):
         if self.action == "create":
@@ -104,6 +126,12 @@ class ApprovalViewSet(viewsets.ModelViewSet):
         approval.comment = request.data.get("comment", "")
         approval.approved_at = timezone.now()
         approval.save()
+
+        send_procurement_email(
+            f"Quotation {status_val}",
+            f"Your quotation for {approval.quotation.rfq.title} has been {status_val.lower()}.",
+            [approval.quotation.vendor.email]
+        )
         return Response(ApprovalSerializer(approval).data)
 
 class PurchaseOrderViewSet(viewsets.ModelViewSet):
@@ -111,7 +139,12 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
     serializer_class = PurchaseOrderSerializer
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        po = serializer.save(created_by=self.request.user)
+        send_procurement_email(
+            "New Purchase Order Issued",
+            f"PO {po.po_number} has been issued for your quotation.",
+            [po.vendor.email]
+        )
 
     def get_permissions(self):
         return [IsProcurementOrAdmin()]
@@ -121,9 +154,15 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
         po = self.get_object()
         buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
-        p.drawString(100, 750, f"Purchase Order: {po.po_number}")
-        p.drawString(100, 730, f"Vendor: {po.vendor.vendor_name}")
-        p.drawString(100, 710, f"Amount: {po.total_amount}")
+        p.setFont("Helvetica-Bold", 20)
+        p.drawString(50, 800, "VENDORBRIDGE PROCUREMENT")
+        p.setFont("Helvetica", 12)
+        p.drawString(50, 770, f"Purchase Order: {po.po_number}")
+        p.drawString(50, 750, f"Date: {po.issue_date}")
+        p.line(50, 730, 550, 730)
+        p.drawString(50, 700, f"Vendor: {po.vendor.vendor_name}")
+        p.drawString(50, 680, f"RFQ: {po.rfq.title}")
+        p.drawString(50, 660, f"Total Amount: ${po.amount}")
         p.showPage()
         p.save()
         pdf = buffer.getvalue()
@@ -136,5 +175,18 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
 
+    def perform_create(self, serializer):
+        invoice = serializer.save()
+        send_procurement_email(
+            "New Invoice Created",
+            f"Invoice {invoice.invoice_number} has been created for PO {invoice.purchase_order.po_number}.",
+            [invoice.vendor.email]
+        )
+
     def get_permissions(self):
         return [permissions.IsAuthenticated()]
+
+class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = AuditLog.objects.all()
+    serializer_class = AuditLogSerializer
+    permission_classes = [IsProcurementOrAdmin]
