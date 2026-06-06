@@ -1,6 +1,10 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.http import HttpResponse
+from django.utils import timezone
+from reportlab.pdfgen import canvas
+import io
 from .models import Vendor, RFQ, Quotation, Approval, PurchaseOrder, Invoice
 from .serializers import (
     VendorSerializer, RFQSerializer, QuotationSerializer, 
@@ -73,20 +77,6 @@ class QuotationViewSet(viewsets.ModelViewSet):
             permission_classes = [IsProcurementOrAdmin]
         return [permission() for permission in permission_classes]
 
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django.http import HttpResponse
-from reportlab.pdfgen import canvas
-import io
-from .models import Vendor, RFQ, Quotation, Approval, PurchaseOrder, Invoice
-from .serializers import (
-    VendorSerializer, RFQSerializer, QuotationSerializer, 
-    ApprovalSerializer, PurchaseOrderSerializer, InvoiceSerializer
-)
-
-# ... (IsProcurementOrAdmin and other ViewSets remain)
-
 class ApprovalViewSet(viewsets.ModelViewSet):
     queryset = Approval.objects.all()
     serializer_class = ApprovalSerializer
@@ -106,15 +96,14 @@ class ApprovalViewSet(viewsets.ModelViewSet):
         if request.user.role != "MANAGER":
             return Response({"detail": "Only managers can approve."}, status=403)
         
-        status = request.data.get("status")
-        if status not in ["APPROVED", "REJECTED"]:
+        status_val = request.data.get("status")
+        if status_val not in ["APPROVED", "REJECTED"]:
             return Response({"detail": "Invalid status."}, status=400)
         
-        approval.status = status
-        approval.comments = request.data.get("comments", "")
+        approval.status = status_val
+        approval.comment = request.data.get("comment", "")
+        approval.approved_at = timezone.now()
         approval.save()
-        
-        # If approved, can trigger PO logic here
         return Response(ApprovalSerializer(approval).data)
 
 class PurchaseOrderViewSet(viewsets.ModelViewSet):
@@ -122,7 +111,6 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
     serializer_class = PurchaseOrderSerializer
 
     def perform_create(self, serializer):
-        # Ensure only created from approved quotation
         serializer.save(created_by=self.request.user)
 
     def get_permissions(self):
